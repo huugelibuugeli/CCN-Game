@@ -7,7 +7,7 @@ def client_program():
     print("trying to connect to server")
 
     #REMEMBER TO CHANGE THIS IP ADDRESS TO YOUR SERVER IP ADDRESS
-    host = "10.0.2.221"
+    host = "127.0.0.1"
     port = 5000  # socket server port number
 
     client_socket = socket.socket()  # instantiate
