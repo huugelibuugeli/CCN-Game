@@ -71,14 +71,17 @@ def ServerThread():
     global playerPosY
     global playerPosX
     # get the hostname
-    host = socket.gethostbyname(socket.gethostname())
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    host = s.getsockname()[0]
-    s.close()
+    # host = socket.gethostbyname(socket.gethostname())
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect(("8.8.8.8", 80))
+    # host = s.getsockname()[0]
+    # s.close()
     print(host)
-    port = 5000  # initiate port no above 1024
 
+    host = '127.0.0.1'
+    print('Server listening on', host)
+
+    port = 5000  # initiate port no above 1024
     server_socket = socket.socket()  # get instance
     # look closely. The bind() function takes tuple as argument
     server_socket.bind((host, port))  # bind host address and port together
