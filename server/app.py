@@ -76,7 +76,6 @@ def ServerThread():
     # s.connect(("8.8.8.8", 80))
     # host = s.getsockname()[0]
     # s.close()
-    print(host)
 
     host = '127.0.0.1'
     print('Server listening on', host)
