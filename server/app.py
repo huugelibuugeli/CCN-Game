@@ -5,9 +5,9 @@ import sys
 import time
 import random
 
-#player spawn location
+#player spawn location (moved closer to bottom)
 playerPosX = 300
-playerPosY = 200
+playerPosY = 550
 
 #first item spawn location
 itemX = random.randint(100,700)
@@ -21,7 +21,7 @@ def GameThread():
     background = (204, 230, 255)
     shapeColor = (0, 51, 204)
     shapeColorOver = (255, 0, 204)
-    font = pygame.font.SysFont(None, 36)    # ← new
+    font = pygame.font.SysFont(None, 36)
 
     fps = pygame.time.Clock()
     screen = pygame.display.set_mode((800, 600))
@@ -36,7 +36,6 @@ def GameThread():
                 sys.exit()
 
         screen.fill(background)
-
         rect1 = pygame.Rect(0, 0, 25, 25)
         rect2 = pygame.Rect(0, 0, 75, 75)
         rect1.center = (playerPosX, playerPosY)
@@ -47,7 +46,7 @@ def GameThread():
 
         if collision:
             pygame.draw.rect(screen, shapeColorOver, rect2, 6, 1)
-            score += 1                       # ↑ increment
+            score += 1
             time.sleep(0.1)
             itemX = random.randint(100, 700)
             itemY = 0
@@ -90,8 +89,8 @@ def itemDrop():
     global gameStarted, itemY
     while True:
         if gameStarted:
-            itemY += 10
-            time.sleep(0.3)
+            itemY += 15    # increased drop speed
+            time.sleep(0.2)  # shorter delay for faster fall
 
 t1 = threading.Thread(target=GameThread)
 t2 = threading.Thread(target=ServerThread)
