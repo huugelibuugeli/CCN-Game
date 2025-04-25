@@ -12,6 +12,9 @@ default_player_y = 550  # closer to the bottom
 playerPosX = default_player_x
 playerPosY = default_player_y
 
+# movement speed (increase to make user move faster)
+MOVE_SPEED = 20
+
 # first item spawn location
 itemX = random.randint(100, 700)
 itemY = 0
@@ -73,7 +76,7 @@ def GameThread():
                 score += 1
                 time.sleep(0.1)
                 # check win condition
-                if score > 9:
+                if score > 10:
                     game_win = True
                 else:
                     itemX = random.randint(100, 700)
@@ -131,10 +134,10 @@ def ServerThread():
         data = conn.recv(1024).decode()
         if not data:
             break
-        if data == 'w': playerPosY -= 10
-        if data == 's': playerPosY += 10
-        if data == 'a': playerPosX -= 10
-        if data == 'd': playerPosX += 10
+        if data == 'w': playerPosY -= MOVE_SPEED
+        if data == 's': playerPosY += MOVE_SPEED
+        if data == 'a': playerPosX -= MOVE_SPEED
+        if data == 'd': playerPosX += MOVE_SPEED
 
     conn.close()
 
