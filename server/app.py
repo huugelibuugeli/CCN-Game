@@ -5,9 +5,12 @@ import sys
 import time
 import random
 
-# player spawn location
-playerPosX = 300
-playerPosY = 550  # closer to the bottom
+# initial spawn locations
+default_player_x = 300
+default_player_y = 550  # closer to the bottom
+
+playerPosX = default_player_x
+playerPosY = default_player_y
 
 # first item spawn location
 itemX = random.randint(100, 700)
@@ -16,6 +19,7 @@ itemY = 0
 score = 0
 lives = 3  # start with three lives
 gameStarted = False
+game_over = False
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -27,55 +31,68 @@ def GameThread():
     shapeColor = (0, 51, 204)
     shapeColorOver = (255, 0, 204)
     font = pygame.font.SysFont(None, 36)
+    font_big = pygame.font.SysFont(None, 72, bold=True)
+    font_small = pygame.font.SysFont(None, 36)
 
     fps = pygame.time.Clock()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Welcome to CCN games')
 
-    global playerPosX, playerPosY, itemX, itemY, score, lives
+    global playerPosX, playerPosY, itemX, itemY, score, lives, game_over
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-        screen.fill(background)
-        rect1 = pygame.Rect(0, 0, 25, 25)
-        rect2 = pygame.Rect(0, 0, 75, 75)
-        rect1.center = (playerPosX, playerPosY)
-        rect2.center = (itemX, itemY)
-
-        collision = rect1.colliderect(rect2)
-        pygame.draw.rect(screen, shapeColor, rect1)
-
-        if collision:
-            pygame.draw.rect(screen, shapeColorOver, rect2, 6, 1)
-            score += 1
-            time.sleep(0.1)
-            itemX = random.randint(100, 700)
-            itemY = 0
-        else:
-            pygame.draw.rect(screen, shapeColor, rect2, 6, 1)
-            # check if item missed (passed bottom)
-            if itemY > SCREEN_HEIGHT:
-                lives -= 1
+            # restart logic on game over
+            if game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                score = 0
+                lives = 3
+                playerPosX = default_player_x
+                playerPosY = default_player_y
                 itemX = random.randint(100, 700)
                 itemY = 0
-                if lives <= 0:
-                    # game over
-                    game_over_surf = font.render('Game Over', True, (255, 0, 0))
-                    screen.blit(game_over_surf, (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT//2))
-                    pygame.display.update()
-                    time.sleep(2)
-                    pygame.quit()
-                    sys.exit()
+                game_over = False
 
-        # draw score and lives
-        score_surf = font.render(f"Score: {score}", True, (0, 0, 0))
-        lives_surf = font.render(f"Lives: {lives}", True, (0, 0, 0))
-        screen.blit(score_surf, (10, 10))
-        screen.blit(lives_surf, (10, 50))
+        screen.fill(background)
+
+        if not game_over:
+            rect1 = pygame.Rect(0, 0, 25, 25)
+            rect2 = pygame.Rect(0, 0, 75, 75)
+            rect1.center = (playerPosX, playerPosY)
+            rect2.center = (itemX, itemY)
+
+            collision = rect1.colliderect(rect2)
+            pygame.draw.rect(screen, shapeColor, rect1)
+
+            if collision:
+                pygame.draw.rect(screen, shapeColorOver, rect2, 6, 1)
+                score += 1
+                time.sleep(0.1)
+                itemX = random.randint(100, 700)
+                itemY = 0
+            else:
+                pygame.draw.rect(screen, shapeColor, rect2, 6, 1)
+                # check if item passed bottom
+                if itemY > SCREEN_HEIGHT:
+                    lives -= 1
+                    itemX = random.randint(100, 700)
+                    itemY = 0
+                    if lives <= 0:
+                        game_over = True
+
+            # draw score and lives
+            score_surf = font.render(f"Score: {score}", True, (0, 0, 0))
+            lives_surf = font.render(f"Lives: {lives}", True, (0, 0, 0))
+            screen.blit(score_surf, (10, 10))
+            screen.blit(lives_surf, (10, 50))
+        else:
+            # game over screen
+            lost_surf = font_big.render("You Lost", True, (255, 0, 0))
+            restart_surf = font_small.render("Press 'R' to Restart", True, (255, 0, 0))
+            screen.blit(lost_surf, (SCREEN_WIDTH // 2 - lost_surf.get_width() // 2, SCREEN_HEIGHT // 2 - 50))
+            screen.blit(restart_surf, (SCREEN_WIDTH // 2 - restart_surf.get_width() // 2, SCREEN_HEIGHT // 2 + 10))
 
         pygame.display.update()
         fps.tick(60)
@@ -108,12 +125,11 @@ def ServerThread():
 
 
 def itemDrop():
-    global gameStarted, itemY
+    global gameStarted, itemY, game_over
     while True:
-        if gameStarted:
+        if gameStarted and not game_over:
             itemY += 15  # faster drop
             time.sleep(0.2)
-
 
 
 t1 = threading.Thread(target=GameThread)
