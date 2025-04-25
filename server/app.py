@@ -76,7 +76,7 @@ def GameThread():
                 score += 1
                 time.sleep(0.1)
                 # check win condition
-                if score > 10:
+                if score > 9:
                     game_win = True
                 else:
                     itemX = random.randint(100, 700)
