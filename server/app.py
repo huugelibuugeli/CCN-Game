@@ -5,16 +5,21 @@ import sys
 import time
 import random
 
-#player spawn location (moved closer to bottom)
+# player spawn location
 playerPosX = 300
-playerPosY = 550
+playerPosY = 550  # closer to the bottom
 
-#first item spawn location
-itemX = random.randint(100,700)
+# first item spawn location
+itemX = random.randint(100, 700)
 itemY = 0
 
 score = 0
+lives = 3  # start with three lives
 gameStarted = False
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
 
 def GameThread():
     pygame.init()
@@ -24,10 +29,10 @@ def GameThread():
     font = pygame.font.SysFont(None, 36)
 
     fps = pygame.time.Clock()
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Welcome to CCN games')
 
-    global playerPosX, playerPosY, itemX, itemY, score
+    global playerPosX, playerPosY, itemX, itemY, score, lives
 
     while True:
         for event in pygame.event.get():
@@ -52,13 +57,29 @@ def GameThread():
             itemY = 0
         else:
             pygame.draw.rect(screen, shapeColor, rect2, 6, 1)
+            # check if item missed (passed bottom)
+            if itemY > SCREEN_HEIGHT:
+                lives -= 1
+                itemX = random.randint(100, 700)
+                itemY = 0
+                if lives <= 0:
+                    # game over
+                    game_over_surf = font.render('Game Over', True, (255, 0, 0))
+                    screen.blit(game_over_surf, (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT//2))
+                    pygame.display.update()
+                    time.sleep(2)
+                    pygame.quit()
+                    sys.exit()
 
-        # draw score
+        # draw score and lives
         score_surf = font.render(f"Score: {score}", True, (0, 0, 0))
+        lives_surf = font.render(f"Lives: {lives}", True, (0, 0, 0))
         screen.blit(score_surf, (10, 10))
+        screen.blit(lives_surf, (10, 50))
 
         pygame.display.update()
         fps.tick(60)
+
 
 def ServerThread():
     global gameStarted, playerPosX, playerPosY
@@ -85,12 +106,15 @@ def ServerThread():
 
     conn.close()
 
+
 def itemDrop():
     global gameStarted, itemY
     while True:
         if gameStarted:
-            itemY += 15    # increased drop speed
-            time.sleep(0.2)  # shorter delay for faster fall
+            itemY += 15  # faster drop
+            time.sleep(0.2)
+
+
 
 t1 = threading.Thread(target=GameThread)
 t2 = threading.Thread(target=ServerThread)
