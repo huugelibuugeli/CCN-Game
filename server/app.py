@@ -141,16 +141,17 @@ def ServerThread():
 
     conn.close()
 
-
-def itemDrop():
-    global gameStarted, itemY, game_over, game_win
+#adjusts both player and item speed based on score
+def itemSpeed():
+    global gameStarted, itemY, game_over, game_win, score, MOVE_SPEED
     while True:
         if gameStarted and not game_over and not game_win:
-            itemY += 15  # faster drop
-            time.sleep(0.2)
+            itemY += 15 # faster drop
+            time.sleep(0.2-(score/70))
+            MOVE_SPEED = 20 + score
 
 
 t1 = threading.Thread(target=GameThread)
 t2 = threading.Thread(target=ServerThread)
-t3 = threading.Thread(target=itemDrop)
+t3 = threading.Thread(target=itemSpeed)
 t1.start(); t2.start(); t3.start()
