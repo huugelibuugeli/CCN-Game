@@ -28,6 +28,11 @@ game_win = False  # track win state
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+characterImage = pygame.image.load('./assets/bucket.png')
+characterImage = pygame.transform.scale(characterImage, (75, 75))
+
+itemImage = pygame.image.load('./assets/sponge.png')
+itemImage = pygame.transform.scale(itemImage, (75, 75))
 
 def GameThread():
     pygame.init()
@@ -63,13 +68,17 @@ def GameThread():
         screen.fill(background)
 
         if not game_over and not game_win:
-            rect1 = pygame.Rect(0, 0, 25, 25)
+            rect1 = pygame.Rect(0, 0, 50, 50)
             rect2 = pygame.Rect(0, 0, 75, 75)
+
             rect1.center = (playerPosX, playerPosY)
             rect2.center = (itemX, itemY)
 
+            screen.blit(characterImage, (rect1.x, rect1.y))
+            screen.blit(itemImage, (rect2.x, rect2.y))
+
             collision = rect1.colliderect(rect2)
-            pygame.draw.rect(screen, shapeColor, rect1)
+            #pygame.draw.rect(screen, shapeColor, rect1)
 
             if collision:
                 pygame.draw.rect(screen, shapeColorOver, rect2, 6, 1)
@@ -82,7 +91,7 @@ def GameThread():
                     itemX = random.randint(100, 700)
                     itemY = 0
             else:
-                pygame.draw.rect(screen, shapeColor, rect2, 6, 1)
+                #pygame.draw.rect(screen, shapeColor, rect2, 6, 1)
                 # check if item passed bottom
                 if itemY > SCREEN_HEIGHT:
                     lives -= 1
