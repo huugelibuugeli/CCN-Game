@@ -7,7 +7,7 @@ def client_program():
     print("trying to connect to server")
 
     #REMEMBER TO CHANGE THIS IP ADDRESS TO YOUR SERVER IP ADDRESS
-    host = "192.168.56.1"
+    host = "10.22.43.145"
     port = 5000  # socket server port number
 
     client_socket = socket.socket()  # instantiate
@@ -28,9 +28,12 @@ def client_program():
         if keyboard.is_pressed('w'):
             client_socket.send('w'.encode())  # send message
             time.sleep(0.1)
+        if keyboard.is_pressed('r'):
+            client_socket.send('r'.encode())  # send message
+            time.sleep(0.1)
 
     client_socket.close()  # close the connection
 
 
-if __name__ == '__main__':
+if __name__ == 'main':
     client_program()
