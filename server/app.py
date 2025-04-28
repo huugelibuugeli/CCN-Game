@@ -24,6 +24,7 @@ lives = 3  # start with three lives
 gameStarted = False
 game_over = False
 game_win = False  # track win state
+restart = False
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -47,7 +48,7 @@ def GameThread():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Welcome to CCN games')
 
-    global playerPosX, playerPosY, itemX, itemY, score, lives, game_over, game_win
+    global playerPosX, playerPosY, itemX, itemY, score, lives, game_over, game_win, restart
 
     while True:
         for event in pygame.event.get():
@@ -55,7 +56,8 @@ def GameThread():
                 pygame.quit()
                 sys.exit()
             # restart logic on game over or win
-            if (game_over or game_win) and event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            if ((game_over or game_win) and restart):
+                print("Restarting game...")
                 score = 0
                 lives = 3
                 playerPosX = default_player_x
@@ -64,6 +66,7 @@ def GameThread():
                 itemY = 0
                 game_over = False
                 game_win = False
+                restart = False
 
         screen.fill(background)
 
@@ -126,19 +129,37 @@ def GameThread():
 
 
 def ServerThread():
-    global gameStarted, playerPosX, playerPosY
-    host = '127.0.0.1'
+
+    host = socket.gethostbyname(socket.gethostname())
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    host = s.getsockname()[0]
+    s.close()
+    print(host)
+    port = 5000  # initiate port no above 1024
+
+    server_socket = socket.socket()  # get instance
+    # look closely. The bind() function takes tuple as argument
+    server_socket.bind((host, port))  # bind host address and port together
+    print("Server enabled...")
+    # configure how many client the server can listen simultaneously
+    server_socket.listen(2)
+    conn, address = server_socket.accept()  # accept new connection
+
+
+    global gameStarted, playerPosX, playerPosY, restart
+    '''
+    host = '192.168.56.1'
     print('Server listening on', host)
-    port = 5000
+    port = 8050
 
     server_socket = socket.socket()
     server_socket.bind((host, port))
     print("Server enabled...")
     server_socket.listen(2)
     conn, address = server_socket.accept()
-    print("Connection from:", address)
+    print("Connection from:", address)'''
     gameStarted = True
-
     while True:
         data = conn.recv(1024).decode()
         if not data:
@@ -147,6 +168,7 @@ def ServerThread():
         if data == 's': playerPosY += MOVE_SPEED
         if data == 'a': playerPosX -= MOVE_SPEED
         if data == 'd': playerPosX += MOVE_SPEED
+        if data == 'r': restart = True
 
     conn.close()
 
